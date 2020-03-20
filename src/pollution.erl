@@ -10,4 +10,15 @@
 -author("grzegorz").
 
 %% API
--export([]).
+-export([createMonitor/0]).
+
+% informacje o stacjach pogodowych
+% wspolrzedne geograficzne
+% nazwy stacji pomiarowych
+% zmierzone wartosci paraetrow (stezenia pylow, wartosci temperatury wraz z
+% data i godzina pomiaru.
+
+createMonitor() -> [[], []].
+
+
+
