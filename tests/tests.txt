@@ -1,0 +1,116 @@
+% test 1
+% utworzenie monitora
+
+pollution:createMonitor().
+
+% spodziewany wynik: [[], []]
+
+
+% test 2
+% dodanie stacji do pustego monitora
+
+M1 = pollution:createMonitor(),
+pollution:addStation("LVE", {14, 11}, M1).
+
+% spodziewany wynik: [[{"LVE", {14, 11}}], []]
+
+
+% test 3
+% dodanie stacji do niepustego monitora
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+pollution:addStation("ABC", {06, 08}, M2).
+
+% spodziewany wynik: [[{"ABC",{6,8}},{"LVE",{14,11}}],[]]
+
+
+% test 4
+% dodanie pomiaru do istniejącej stacji
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2).
+
+% spodziewany wynik: [[{"LVE",{14,11}}],[{"LVE",{{1,2,3},{4,5,6}},"XCD",132.9}]]
+
+
+% test 5
+% dodanie pomiaru do nieistniejącej stacji
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+pollution:addValue("ASD", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2).
+
+% spodziewany wynik: error_nostation
+
+
+% test 6
+% usuniecie pomiaru ze stacji
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1).
+M3 = pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2).
+pollution:removeValue({14, 11}, {{1, 2, 3}, {4, 5, 6}}, "XCD", M3).
+
+% spodziewany wynik: [[{"LVE",{14,11}}],[]]
+
+
+% test 7
+% pobranie jednej wartosci pomiaru
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+M3 = pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2),
+pollution:getOneValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", M3).
+
+% spodziewany wynik: {"LVE",{{1,2,3},{4,5,6}},"XCD",132.9}
+
+
+% test 8
+% pobranie sredniej z jednej stacji
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+M3 = pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2),
+M4 = pollution:addValue("LVE", {{1, 1, 1}, {2, 2, 2}}, "XCD", 1441, M3),
+pollution:getStationMean("LVE", "XCD", M4).
+
+% spodziewany wynik: 786.95
+
+
+% test 9
+% pobranie sredniej dziennej
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+M3 = pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2),
+M4 = pollution:addValue("LVE", {{1, 1, 1}, {2, 2, 2}}, "XCD", 1441, M3),
+pollution:getDailyMean("XCD", {1, 1, 1}, M4).
+
+% spodziewany wynik: 1441.0
+
+
+% test 10
+% pobranie sredniej danego rodzaju pomiaru
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+M3 = pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2),
+M4 = pollution:addValue("LVE", {{1, 1, 1}, {2, 2, 2}}, "XCD", 1441, M3),
+pollution:getDailyMean("XCD", {1, 1, 1}, M4).
+
+% spodziewany wynik: 786.95
+
+
+% test 11
+% pobranie roznicy miedzy najwiekszym a najmniejszym pomiarem danego typu z danej stacji
+
+M1 = pollution:createMonitor(),
+M2 = pollution:addStation("LVE", {14, 11}, M1),
+M3 = pollution:addValue("LVE", {{1, 2, 3}, {4, 5, 6}}, "XCD", 132.9, M2),
+M4 = pollution:addValue("LVE", {{1, 1, 1}, {2, 2, 2}}, "XCD", 1441, M3),
+pollution:getMaxDifference("LVE", "XCD", M4).
+
+% spodziewany wynik: 1308.1
+

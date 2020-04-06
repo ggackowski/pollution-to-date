@@ -18,8 +18,12 @@
 % zmierzone wartosci paraetrow (stezenia pylow, wartosci temperatury wraz z
 % data i godzina pomiaru.
 
+
+% utworzenie montira
 createMonitor() -> [[], []].
 
+
+% dodanie stacji do monitora
 addStation(StationName, {X, Y}, [Stations, Values]) ->
   case lists:member(StationName, [Name || {Name, _} <- Stations]) of
     true -> error_nostation;
@@ -30,7 +34,7 @@ addStation(StationName, {X, Y}, [Stations, Values]) ->
       end
   end.
 
-
+% dodanie pomiaru podajac wspolrzedne miasta lub nazwe
 addValue({X, Y}, {{Year, Month, Day}, {Hour, Minute, Sec}}, Type, Value, [Stations, Values]) ->
   Name = getStationByName({X, Y}, [Stations, Values]),
   case Name of
@@ -49,7 +53,7 @@ addValue(Name, {{Year, Month, Day}, {Hour, Minute, Sec}}, Type, Value, [Stations
   end.
 
 
-
+% pobranie nazwy stacji po podaniu wspolrzednych
 getStationByName({X, Y}, [Stations, _]) ->
   Res = lists:filter(fun({_, {Xx, Yy}}) -> (Xx == X) and (Yy == Y) end,  Stations),
   case Res of
@@ -57,6 +61,7 @@ getStationByName({X, Y}, [Stations, _]) ->
     [{Name, _}] -> Name
   end.
 
+%usuniecie pomiaru
 removeValue({X, Y}, Data, Type, [Stations, Values]) ->
   Name = getStationByName({X, Y}, [Stations, Values]),
   case Name of
@@ -71,27 +76,27 @@ removeValue(Name, Data, Type, [Stations, Values]) ->
       [Stations, NewValues]
   end.
 
+%pobranie 1 pomiaru
 getOneValue({X, Y}, Data, Type, [Stations, Values]) ->
   Name = getStationByName({X, Y}, [Stations, Values]),
   case Name of
     error -> error_nostation;
     _ -> [NewValues | _ ] = lists:dropwhile(fun({NName, DData, TType, _}) -> (NName /= Name) or (DData /= Data) or (TType /= Type) end, Values),
       NewValues
-
   end;
 getOneValue(Name, Data, Type, [Stations, Values]) ->
   case lists:member(Name, [N || {N, _} <- Stations]) of
     error -> error_nostation;
     _ -> [NewValues | _ ] = lists:dropwhile(fun({NName, DData, TType, _}) -> (NName /= Name) or (DData /= Data) or (TType /= Type) end, Values),
       NewValues
-
   end.
 
+%srednia
 average([], Sum, Cnt) -> Sum / Cnt;
 average([H|T], Sum, Cnt) -> average(T, Sum + H, Cnt + 1).
 
 
-
+%srednia wartosc danego rodzaju pomiaru z danej stacji
 getStationMean({X, Y}, Type, [Stations, Values]) ->
   Name = getStationByName({X, Y}, [Stations, Values]),
   Vals = [V || {NName, _, TType, V} <- Values, Type == TType, NName == Name],
@@ -106,6 +111,8 @@ getStationMean(Name, Type, [_, Values]) ->
     _ -> average(Vals, 0, 0)
   end.
 
+
+% srednia dzienna wartosc danego rodzaju pomiaru
 getDailyMean(Type, {Y, M, D}, [_, Values]) ->
   Vals = [V || {_, {{Yy, Mm, Dd}, _}, TType, V} <- Values, Yy == Y, Mm == M, Dd == D, TType == Type],
  case Vals of
@@ -115,6 +122,8 @@ getDailyMean(Type, {Y, M, D}, [_, Values]) ->
 
 %%% dodatkowe
 
+
+%srednia wartosc danego rodzaju pomiaru ze wszystkich stacji
 getTypeMean(Type, [_, Values]) ->
   Vals = [V || {_, _, T, V} <- Values, T == Type],
   case Vals of
@@ -122,6 +131,7 @@ getTypeMean(Type, [_, Values]) ->
     _ -> average(Vals, 0, 0)
   end.
 
+% roznica pomiedzy najwieksza a najmniejsza zanotowana wartoscia danego rodzaju pomiaru
 getMaxDifference({X, Y}, Type, [Stations, Values]) ->
   Name = getStationByName({X, Y}, [Stations, Values]),
   case Name of
